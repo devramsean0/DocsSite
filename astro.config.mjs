@@ -8,7 +8,7 @@ import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [solidJs(), markdoc(), tailwind(), sitemap()],
+  integrations: [solidJs({devtools: true}), markdoc(), tailwind(), sitemap()],
   output: "server",
   adapter: vercel()
 });

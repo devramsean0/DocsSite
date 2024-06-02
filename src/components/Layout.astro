@@ -1,0 +1,17 @@
+---
+import { Header } from "./Header";
+import { Sidebar } from "./Sidebar";
+---
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="viewport" content="width=device-width" />
+        <title>Docs</title>
+    </head>
+    <body class="dark bg-gray-700 text-white">
+        <Header client:visible/>
+        <Sidebar client:visible/>
+        <slot />
+        </body>
+</html>
