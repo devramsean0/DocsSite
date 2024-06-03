@@ -1,10 +1,7 @@
 import { Dropdown } from "./elements";
+import { get_packages } from "../lib";
 
 export function Header() {
-    const redirect = (url: string) => {
-        console.log(url)
-        window.location.pathname = `${url}`
-    }
     return (
         <header class="bg-gray-900 h-16 w-full flex items-center gap-4">
             <div class="flex">
@@ -12,12 +9,12 @@ export function Header() {
                 <h1 class="text-3xl">Docs</h1>
             </div>
             {/* Dropdown for package */}
-            <Dropdown name="Package" options={["hcb.js"]} onSelect={(option: string) => {
-                redirect(`/${option}`)
+            <Dropdown name="Package" options={[]} onSelect={(option: string) => {
+                console.log("Hello")
             }} />
             {/* Dropdown for version */}
             <Dropdown name="Version" options={["v1.0.0"]} onSelect={(option: string) => {
-                redirect(`/${window.location.pathname}/${option}`)
+                console.log("Hello")
             }} />
             {/* Search bar */}
         </header>

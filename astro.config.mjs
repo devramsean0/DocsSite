@@ -8,7 +8,13 @@ import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
+  site: "https://docs.sean.cyou",
   integrations: [solidJs({devtools: true}), markdoc(), tailwind(), sitemap()],
   output: "server",
-  adapter: vercel()
+  adapter: vercel(),
+  vite: {
+    resolve: {
+      preserveSymlinks: true
+    }
+  }
 });
