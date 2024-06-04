@@ -1,10 +1,39 @@
 import * as fs from 'fs';
 import path from 'path';
-import { execSync, spawnSync } from 'child_process';
-import matter from 'gray-matter'; // You need to install this package
+import matter from 'gray-matter';
 
 const sourceFolder = 'docs/md-docs';
 const destinationFolder = 'src/content/docs/reference';
+
+// Function to recursively copy markdown files and add title frontmatter
+function copyAndEditMarkdownFiles(src, dest) {
+    const exists = fs.existsSync(src);
+    const stats = exists && fs.statSync(src);
+    const isDirectory = exists && stats.isDirectory();
+    if (exists && isDirectory) {
+        fs.mkdirSync(dest, { recursive: true });
+        fs.readdirSync(src).forEach(child => {
+            copyAndEditMarkdownFiles(path.join(src, child), path.join(dest, child));
+        });
+    } else if (path.extname(src) === '.md') {
+        fs.copyFileSync(src, dest);
+        
+        // Read file content
+        let fileContent = fs.readFileSync(dest, 'utf8');
+        
+        // Parse frontmatter
+        let doc = matter(fileContent);
+        
+        // If title in frontmatter doesn't exist, create it
+        if (!doc.data.title) {
+            doc.data.title = path.basename(dest, '.md');
+            
+            // Write file back with new frontmatter
+            const newContent = matter.stringify(doc.content, doc.data);
+            fs.writeFileSync(dest, newContent, 'utf8');
+        }
+    }
+}
 
 // Get a list of all folders directly under the source folder
 const folders = fs.readdirSync(sourceFolder, { withFileTypes: true })
@@ -13,40 +42,7 @@ const folders = fs.readdirSync(sourceFolder, { withFileTypes: true })
 
 // Create a folder in the destination for each source folder
 folders.forEach(folder => {
+    const srcFolder = path.join(sourceFolder, folder, 'current-branch-main');
     const destFolder = path.join(destinationFolder, folder);
-    fs.mkdirSync(destFolder, { recursive: true });
-    const rsync = spawnSync('rsync', ['-avm', '--include=*.md', '-f', 'hide,! */', path.join(sourceFolder, folder, 'current-branch-main'), destFolder]);
-    
-    if (rsync.error) {
-        console.error(`Error during rsync: ${rsync.error}`);
-        return;
-    } else {
-        console.log(`Copied ${folder} to ${destFolder}`);
-        
-        // Check if the directory exists
-        if (fs.existsSync(destFolder)) {
-            // Get all .md files in the folder
-            const mdFiles = fs.readdirSync(path.join(destFolder, 'current-branch-main'), { recursive: true}).filter(fn => path.extname(fn) === '.md');
-            console.log(`Markdown files in ${destFolder}:`, mdFiles);
-
-            mdFiles.forEach(file => {
-                const filePath = path.join(destinationFolder, folder, 'current-branch-main', file);
-                let fileContent = fs.readFileSync(path.join(process.cwd(), filePath), 'utf8');
-                
-                // Parse frontmatter
-                let doc = matter(fileContent);
-                
-                // If title in frontmatter doesn't exist, create it
-                if (!doc.data.title) {
-                    doc.data.title = path.basename(file, '.md');
-                    
-                    // Write file back with new frontmatter
-                    const newContent = matter.stringify(doc.content, doc.data);
-                    fs.writeFileSync(filePath, newContent, 'utf8');
-                }
-            });
-        } else {
-            console.log(`Directory does not exist: ${destFolder}`);
-        }
-    }
+    copyAndEditMarkdownFiles(srcFolder, destFolder);
 });
