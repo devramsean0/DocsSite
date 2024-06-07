@@ -8,7 +8,7 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "submodule_setup": "node scripts/moveLatestVersion.js"
+    "submodule_setup": "node scripts/moveLatestVersion.js && node scripts/checkForCorrectMetadata.js"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.23.2",
